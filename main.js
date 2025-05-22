@@ -59,7 +59,7 @@ function handleExitMessage() {
     text("종료합니다.", width / 2, height / 2);
 
     if (millis() - exitMessageStartTime > 2000) {
-      showExitMessage = false;
+      showExitMessage = false;  
     }
   }
 }
@@ -88,8 +88,7 @@ function applyBlurEffect(scrollY, maxScroll) {
 
 function drawRedOverlay(scrollY, maxScroll) {
   if (scrollY > 23 * 531) {
-    let redOverlayAlpha = map(scrollY, 23 * 531, maxScroll, 0, 150);
-    redOverlayAlpha = constrain(redOverlayAlpha, 0, 150);
+    let redOverlayAlpha = map(scrollY, 23 * 531, maxScroll, 0, 80);
     fill(255, 0, 0, redOverlayAlpha);
     rect(0, 0, width, height);
   }
@@ -104,12 +103,13 @@ function displayUsageTime(scrollY, maxScroll) {
 }
 
 function displayWarning(scrollY, maxScroll) {
+  let redOverlayAlpha = map(scrollY, 23 * 531, maxScroll, 0, 200);
   let usageTime = floor(map(scrollY, 0, maxScroll, 0, 360));
   if (usageTime > 220) {
-    fill(255, 0, 0);
+    fill(255, 0, 0, redOverlayAlpha);
     textAlign(CENTER, TOP);
     textSize(18);
-    text("⚠️ 경고! 과도한 사용은 건강에 해로울 수 있습니다.", width / 2, 40);
+    text("⚠ 경고! 과도한 사용은 건강에 해로울 수 있습니다.", width / 2, 40);
   }
 }
 
@@ -264,12 +264,19 @@ function drawSaveIcon(x, y) {
 // -----------------------
 
 function drawStopButton() {
-  fill(50);
+  push();
+  let stopButtonAlpha = map(scrollY, 23 * 531, 40 * 531, 0, 255); // 투명도 조절
+
+  let stopButtonColor = color(255, 0, 0, stopButtonAlpha);
+  fill(stopButtonColor);
+  noStroke();
   rect(width / 4, height - 60, width / 2, 40, 10);
-  fill(255);
+
+  fill(255, stopButtonAlpha);
   textAlign(CENTER, CENTER);
   textSize(16);
   text("멈추시겠습니까?", width / 2, height - 40);
+  pop();
 }
 
 function mousePressed() {
