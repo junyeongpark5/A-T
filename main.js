@@ -99,9 +99,21 @@ function showRestMessage() {
 // -----------------------
 
 function generatePosts(count) {
+  let englishNames = [
+  "Ethan Carter",
+  "Olivia Bennett",
+  "Liam Thompson",
+  "Ava Morgan",
+  "Noah Brooks",
+  "Chloe Anderson",
+  "Mason Reed",
+  "Lily Parker",
+  "James Sullivan",
+  "Sophia Hayes"
+  ];
   for (let i = 0; i < count; i++) {
     posts.push({
-      username: "Arneo Paris",
+      username: random(englishNames),
       caption: "파리의 하루 🌇 #" + (i + 1),
     });
     heartClicked.push(false);
@@ -160,8 +172,8 @@ function drawHeartIcon(index, x, y) {
   fill(heartClicked[index] ? 'red' : 'white');
   beginShape();
   vertex(0, 0);
-  bezierVertex(-10, -15, -25, 10, 0, 25);
-  bezierVertex(25, 10, 10, -15, 0, 0);
+  bezierVertex(-10, -10, -30, 10, 0, 25);
+  bezierVertex(30, 10, 10, -10, 0, 0);
   endShape(CLOSE);
   pop();
 }
