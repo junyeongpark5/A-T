@@ -39,11 +39,39 @@ function draw() {
   if (scrollStopped) {
     showRestMessage();
   }
+
+  handleExitMessage(); 
 }
 
 // -----------------------
 // 기능 함수 분리
 // -----------------------
+let showExitMessage = false;
+let exitMessageStartTime = 0;
+
+function handleExitMessage() {
+  if (showExitMessage) {
+    fill(0, 200);
+    rect(0, 0, width, height);
+    fill(255);
+    textSize(22);
+    textAlign(CENTER, CENTER);
+    text("종료합니다.", width / 2, height / 2);
+
+    if (millis() - exitMessageStartTime > 2000) {
+      showExitMessage = false;
+    }
+  }
+}
+
+// 키보드 입력 감지 함수
+function keyPressed() {
+  if (keyCode === ENTER) {
+    showExitMessage = true;
+    exitMessageStartTime = millis();
+  }
+}
+
 
 function applyShakeEffect(scrollY, maxScroll) {
   let shakeAmt = map(scrollY, 0, maxScroll, 0, 5);
