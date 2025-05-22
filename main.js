@@ -3,25 +3,100 @@ let scrollY = 0;
 let heartClicked = [];
 let numPosts = 40;
 
+let startTime;
+let scrollStopped = false;
+
 function setup() {
   createCanvas(400, windowHeight);
   textFont('Arial');
   generatePosts(numPosts);
   noSmooth();
+  startTime = millis();
 }
 
 function draw() {
   background(255);
+  let maxScroll = numPosts * 531 - height;
 
-  push();
+  applyShakeEffect(scrollY, maxScroll);
+  applyBlurEffect(scrollY, maxScroll);
+
   translate(0, -scrollY);
   for (let i = 0; i < posts.length; i++) {
     drawPost(i, i * 531);
   }
-  pop();
+  pop(); // blur
+  drawRedOverlay(scrollY, maxScroll);
+  pop(); // shake
 
-  applyScrollBlur();
+  displayUsageTime(scrollY, maxScroll);
+  displayWarning(scrollY, maxScroll);
+
+  if (scrollY > 23 * 531 && !scrollStopped) {
+    drawStopButton();
+  }
+
+  if (scrollStopped) {
+    showRestMessage();
+  }
 }
+
+// -----------------------
+// 기능 함수 분리
+// -----------------------
+
+function applyShakeEffect(scrollY, maxScroll) {
+  let shakeAmt = map(scrollY, 0, maxScroll, 0, 5);
+  push();
+  translate(random(-shakeAmt, shakeAmt), random(-shakeAmt, shakeAmt));
+}
+
+function applyBlurEffect(scrollY, maxScroll) {
+  let blurAmt = map(scrollY, 0, maxScroll, 0, 12);
+  blurAmt = constrain(blurAmt, 0, 12);
+  push();
+  filter(BLUR, blurAmt);
+}
+
+function drawRedOverlay(scrollY, maxScroll) {
+  if (scrollY > 23 * 531) {
+    let redOverlayAlpha = map(scrollY, 23 * 531, maxScroll, 0, 150);
+    redOverlayAlpha = constrain(redOverlayAlpha, 0, 150);
+    fill(255, 0, 0, redOverlayAlpha);
+    rect(0, 0, width, height);
+  }
+}
+
+function displayUsageTime(scrollY, maxScroll) {
+  let usageTime = floor(map(scrollY, 0, maxScroll, 0, 360));
+  fill(0);
+  textAlign(RIGHT, TOP);
+  textSize(14);
+  text(`사용 시간: ${usageTime}분`, width - 10, 10);
+}
+
+function displayWarning(scrollY, maxScroll) {
+  let usageTime = floor(map(scrollY, 0, maxScroll, 0, 360));
+  if (usageTime > 220) {
+    fill(255, 0, 0);
+    textAlign(CENTER, TOP);
+    textSize(18);
+    text("⚠️ 경고! 과도한 사용은 건강에 해로울 수 있습니다.", width / 2, 40);
+  }
+}
+
+function showRestMessage() {
+  fill(0, 200);
+  rect(0, height / 2 - 40, width, 80);
+  fill(255);
+  textSize(20);
+  textAlign(CENTER, CENTER);
+  text("스크롤이 멈췄습니다. 휴식을 취하세요.", width / 2, height / 2);
+}
+
+// -----------------------
+// 기존 콘텐츠 출력
+// -----------------------
 
 function generatePosts(count) {
   for (let i = 0; i < count; i++) {
@@ -71,9 +146,9 @@ function drawBottomUI(index, y) {
 }
 
 function drawIcons(index, y) {
-  drawHeartIcon(index, 30, y + 25);
-  drawCommentIcon(70, y + 25);
-  drawDMIcon(110, y + 25);
+  drawHeartIcon(index, 30, y + 15);
+  drawCommentIcon(73, y + 25);
+  drawDMIcon(115, y + 25);
   drawSaveIcon(360, y + 15);
 }
 
@@ -144,26 +219,42 @@ function drawSaveIcon(x, y) {
   pop();
 }
 
+// -----------------------
+// 버튼 + 입력 처리
+// -----------------------
+
+function drawStopButton() {
+  fill(50);
+  rect(width / 4, height - 60, width / 2, 40, 10);
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(16);
+  text("멈추시겠습니까?", width / 2, height - 40);
+}
+
 function mousePressed() {
-  let yRelative = mouseY + scrollY;
-  for (let i = 0; i < posts.length; i++) {
-    let heartX = 10, heartY = i * 531 + 430;
-    if (mouseX > heartX && mouseX < heartX + 40 &&
-        yRelative > heartY && yRelative < heartY + 40) {
-      heartClicked[i] = !heartClicked[i];
+  if (!scrollStopped) {
+    let yRelative = mouseY + scrollY;
+    for (let i = 0; i < posts.length; i++) {
+      let heartX = 10, heartY = i * 531 + 430;
+      if (mouseX > heartX && mouseX < heartX + 40 &&
+          yRelative > heartY && yRelative < heartY + 40) {
+        heartClicked[i] = !heartClicked[i];
+      }
     }
+  }
+
+  // 멈춤 버튼 클릭 조건
+  if (scrollY > 23 * 531 &&
+      mouseX > width / 4 && mouseX < width * 3 / 4 &&
+      mouseY > height - 60 && mouseY < height - 20) {
+    scrollStopped = true;
   }
 }
 
 function mouseWheel(event) {
-  scrollY += event.delta;
-  scrollY = constrain(scrollY, 0, numPosts * 531 - height);
-}
-
-function applyScrollBlur() {
-  let blurLevel = map(scrollY, 0, numPosts * 531 - height, 0, 5);
-  blurLevel = constrain(blurLevel, 0, 5);
-  if (blurLevel >= 1) {
-    filter(BLUR, blurLevel);
+  if (!scrollStopped) {
+    scrollY += event.delta;
+    scrollY = constrain(scrollY, 0, numPosts * 531 - height);
   }
 }
