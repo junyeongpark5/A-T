@@ -29,6 +29,8 @@ function draw() {
   drawRedOverlay(scrollY, maxScroll);
   pop(); // shake
 
+   applyWaveDistortionEffect(scrollY, maxScroll);
+
   displayUsageTime(scrollY, maxScroll);
   displayWarning(scrollY, maxScroll);
 
@@ -39,51 +41,49 @@ function draw() {
   if (scrollStopped) {
     showRestMessage();
   }
-
-  handleExitMessage(); 
 }
 
 // -----------------------
 // 기능 함수 분리
 // -----------------------
-let showExitMessage = false;
-let exitMessageStartTime = 0;
-
-function handleExitMessage() {
-  if (showExitMessage) {
-    fill(0, 200);
-    rect(0, 0, width, height);
-    fill(255);
-    textSize(22);
-    textAlign(CENTER, CENTER);
-    text("종료합니다.", width / 2, height / 2);
-
-    if (millis() - exitMessageStartTime > 2000) {
-      showExitMessage = false;  
-    }
-  }
-}
-
-// 키보드 입력 감지 함수
-function keyPressed() {
-  if (keyCode === ENTER) {
-    showExitMessage = true;
-    exitMessageStartTime = millis();
-  }
-}
-
 
 function applyShakeEffect(scrollY, maxScroll) {
-  let shakeAmt = map(scrollY, 0, maxScroll, 0, 5);
+  let shakeAmt = map(scrollY, 0, maxScroll, 0, 15);
   push();
   translate(random(-shakeAmt, shakeAmt), random(-shakeAmt, shakeAmt));
 }
 
 function applyBlurEffect(scrollY, maxScroll) {
   let blurAmt = map(scrollY, 0, maxScroll, 0, 12);
-  blurAmt = constrain(blurAmt, 0, 12);
+  blurAmt = constrain(blurAmt, 0, 15);
   push();
   filter(BLUR, blurAmt);
+}
+
+function applyWaveDistortionEffect(scrollY, maxScroll) {
+  let freq = map(scrollY, 23 * 531, maxScroll, 0.01, 0.1);
+  let amp = map(scrollY, 23 * 531, maxScroll, 0, 5);
+  amp = constrain(amp, 0, 10);
+
+  let snapshot = get();
+
+  let margin = 10; // 가장자리 고정 영역 (픽셀 수)
+
+  if (scrollY > 23 * 531) {
+    for (let y = 0; y < height; y++) {
+      let offset = sin(y * freq + frameCount * 0.1) * amp;
+      offset = int(offset);
+
+      // 왼쪽 가장자리 유지
+      copy(snapshot, 0, y, margin, 1, 0, y, margin, 1);
+
+      // 왜곡된 중간 영역
+      copy(snapshot, margin, y, width - 2 * margin, 1, margin + offset, y, width - 2 * margin, 1);
+
+      // 오른쪽 가장자리 유지
+      copy(snapshot, width - margin, y, margin, 1, width - margin, y, margin, 1);
+    }
+  }
 }
 
 function drawRedOverlay(scrollY, maxScroll) {
@@ -109,7 +109,7 @@ function displayWarning(scrollY, maxScroll) {
     fill(255, 0, 0, redOverlayAlpha);
     textAlign(CENTER, TOP);
     textSize(18);
-    text("⚠ 경고! 과도한 사용은 건강에 해로울 수 있습니다.", width / 2, 40);
+    text("⚠️ 경고! 과도한 사용은 건강에 해로울 수 있습니다.", width / 2, 40);
   }
 }
 
