@@ -114,8 +114,8 @@ function displayWarning(scrollY, maxScroll) {
 }
 
 function showRestMessage() {
-  fill(0, 200);
-  rect(0, height / 2 - 40, width, 80);
+  fill(0);
+  rect(0, 0, width, height);
   fill(255);
   textSize(20);
   textAlign(CENTER, CENTER);
