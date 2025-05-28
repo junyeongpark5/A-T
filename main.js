@@ -2,7 +2,8 @@ let posts = [];
 let scrollY = 0;
 let heartClicked = [];
 let numPosts = 40;
-
+let showStartScreen = true;
+let startScreenStartTime;
 let startTime;
 let scrollStopped = false;
 
@@ -12,9 +13,26 @@ function setup() {
   generatePosts(numPosts);
   noSmooth();
   startTime = millis();
+  startScreenStartTime = millis();
 }
 
 function draw() {
+  
+  if (showStartScreen) {
+    background(0);
+    fill(255);
+    textSize(20);
+    textAlign(CENTER, CENTER);
+    text("계속 움직이세요. 멈추지 마세요.", width / 2, height / 2);
+
+    // 3초가 지나면 showStartScreen을 false로 전환
+    if (millis() - startScreenStartTime > 3000) {
+      showStartScreen = false;
+    }
+    return; 
+  }
+  
+  
   background(255);
   let maxScroll = numPosts * 531 - height;
 
@@ -267,7 +285,7 @@ function drawStopButton() {
   push();
   let stopButtonAlpha = map(scrollY, 23 * 531, 40 * 531, 0, 255); // 투명도 조절
 
-  let stopButtonColor = color(255, 0, 0, stopButtonAlpha);
+  let stopButtonColor = color(255, 0, 0, stopButtonAlpha);  
   fill(stopButtonColor);
   noStroke();
   rect(width / 4, height - 60, width / 2, 40, 10);
