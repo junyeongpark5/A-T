@@ -6,6 +6,8 @@ let showStartScreen = true;
 let startScreenStartTime;
 let startTime;
 let scrollStopped = false;
+let showEnding = false;
+let restMessageStartTime; 
 
 function setup() {
   createCanvas(400, windowHeight);
@@ -30,6 +32,11 @@ function draw() {
       showStartScreen = false;
     }
     return; 
+  }
+
+  if (showEnding) {
+    drawEndingCredits();
+    return;
   }
   
   
@@ -132,12 +139,22 @@ function displayWarning(scrollY, maxScroll) {
 }
 
 function showRestMessage() {
+
+  if (!restMessageStartTime) {
+    restMessageStartTime = millis();
+  }
+
   fill(0);
   rect(0, 0, width, height);
   fill(255);
   textSize(20);
   textAlign(CENTER, CENTER);
   text("스크롤이 멈췄습니다. 휴식을 취하세요.", width / 2, height / 2);
+
+  if (millis() - restMessageStartTime > 3000) {
+    showEnding = true;
+  }
+
 }
 
 // -----------------------
@@ -309,7 +326,6 @@ function mousePressed() {
     }
   }
 
-  // 멈춤 버튼 클릭 조건
   if (scrollY > 23 * 531 &&
       mouseX > width / 4 && mouseX < width * 3 / 4 &&
       mouseY > height - 60 && mouseY < height - 20) {
@@ -322,4 +338,19 @@ function mouseWheel(event) {
     scrollY += event.delta;
     scrollY = constrain(scrollY, 0, numPosts * 531 - height);
   }
+}
+
+function drawEndingCredits() {
+  background(0);
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(22);
+  text("✨ 제작진 ✨", width / 2, height / 2 - 60);
+  textSize(18);
+  text("김찬 · 박서연 · 박준영", width / 2, height / 2 - 20);
+  textSize(16);
+  text("AI 사용 비율: 약 80%", width / 2, height / 2 + 20);
+  text("소감 : ~~~~ ", width / 2, height / 2 + 45);
+  textSize(14);
+  text("감사합니다 🙏", width / 2, height / 2 + 90);
 }
