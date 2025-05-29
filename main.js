@@ -9,6 +9,8 @@ let scrollStopped = false;
 let showEnding = false;
 let restMessageStartTime;
 let showTitle = true;
+let distortionBuffer;
+
 
 function setup() {
   createCanvas(400, windowHeight);
@@ -17,33 +19,34 @@ function setup() {
   noSmooth();
   startTime = millis();
   startScreenStartTime = millis();
+  distortionBuffer = createGraphics(width, height);
 }
 
 function draw() {
-  
-  if(showTitle) {
+  if (showTitle) {
     background(0);
     fill(255);
     textSize(40);
     textAlign(CENTER, CENTER);
     text("주제 : 무한스크롤에\n 현혹되지 말자", width / 2, height / 2);
-    
+
     fill(150);
     textSize(20);
     text("제작진", width / 2, height / 2 + 60);
     textSize(18);
     text("김찬 · 박서연 · 박준영", width / 2, height / 2 + 80);
-    
-    if (millis() - showTitle > 3000) {
+
+    if (millis() - startScreenStartTime > 3000) {
       showTitle = false;
       showStartScreen = true;
+      startScreenStartTime = millis();
     }
     return;
   }
-  
+
   if (showStartScreen) {
     background(0);
-    fill(-150 + millis()/15);
+    fill(-150 + millis() / 15);
     textSize(20);
     textAlign(CENTER, CENTER);
     text("계속 움직이세요. 멈추지 마세요.", width / 2, height / 2);
@@ -51,31 +54,36 @@ function draw() {
     if (millis() - startScreenStartTime > 7000) {
       showStartScreen = false;
     }
-    return; 
+    return;
   }
 
   if (showEnding) {
     drawEndingCredits();
     return;
   }
-  
-  
+
   background(255);
   let maxScroll = numPosts * 531 - height;
 
   applyShakeEffect(scrollY, maxScroll);
   applyBlurEffect(scrollY, maxScroll);
-
   translate(0, -scrollY);
-  for (let i = 0; i < posts.length; i++) {
+
+  // 화면에 보이는 포스트만 그리기
+  let startIndex = max(0, floor(scrollY / 531));
+  let endIndex = min(posts.length, ceil((scrollY + height) / 531));
+
+  for (let i = startIndex; i < endIndex; i++) {
     drawPost(i, i * 531);
   }
   pop(); // blur pop
   drawRedOverlay(scrollY, maxScroll);
   pop(); // shake pop
 
-  
-   applyWaveDistortionEffect(scrollY, maxScroll);
+  // 왜곡 이펙트는 2프레임에 1번만
+  if (frameCount % 2 === 0) {
+    applyWaveDistortionEffect(scrollY, maxScroll);
+  }
 
   displayUsageTime(scrollY, maxScroll);
   displayWarning(scrollY, maxScroll);
@@ -90,24 +98,20 @@ function draw() {
   }
 }
 
-// -----------------------
-// 기능 함수 분리
-// -----------------------
-
 function applyShakeEffect(scrollY, maxScroll) {
   if (scrollY > 15 * 531) {
     let shakeAmt = map(scrollY, 15 * 531, maxScroll, 0, 15);
     push();
     translate(random(-shakeAmt, shakeAmt), random(-shakeAmt, shakeAmt));
   } else {
-    push(); // 그냥 좌표계 유지용
+    push();
   }
 }
 
 function applyBlurEffect(scrollY, maxScroll) {
   if (scrollY > 15 * 531) {
-    let blurAmt = map(scrollY, 15 * 531, maxScroll, 0, 12);
-    blurAmt = constrain(blurAmt, 0, 12);
+    let blurAmt = map(scrollY, 15 * 531, maxScroll, 0, 4);
+    blurAmt = constrain(blurAmt, 0, 4);
     push();
     filter(BLUR, blurAmt);
   } else {
@@ -116,30 +120,39 @@ function applyBlurEffect(scrollY, maxScroll) {
 }
 
 function applyWaveDistortionEffect(scrollY, maxScroll) {
+  if (scrollY <= 23 * 531) return;
+
+  loadPixels(); // 현재 캔버스 픽셀 배열 읽기
+
   let freq = map(scrollY, 23 * 531, maxScroll, 0.01, 0.1);
   let amp = map(scrollY, 23 * 531, maxScroll, 0, 5);
   amp = constrain(amp, 0, 10);
 
-  let snapshot = get();
+  let tempPixels = new Uint8ClampedArray(pixels.length);
+  tempPixels.set(pixels);
 
-  let margin = 10; // 가장자리 고정 영역 (픽셀 수)
+  for (let y = 0; y < height; y++) {
+    let offset = sin(y * freq + frameCount * 0.1) * amp;
+    offset = int(offset);
 
-  if (scrollY > 23 * 531) {
-    for (let y = 0; y < height; y++) {
-      let offset = sin(y * freq + frameCount * 0.1) * amp;
-      offset = int(offset);
+    for (let x = 0; x < width; x++) {
+      let srcX = constrain(x - offset, 0, width - 1);
+      let srcIndex = (y * width + srcX) * 4;
+      let dstIndex = (y * width + x) * 4;
 
-      // 왼쪽 가장자리 유지
-      copy(snapshot, 0, y, margin, 1, 0, y, margin, 1);
-
-      // 왜곡된 중간 영역
-      copy(snapshot, margin, y, width - 2 * margin, 1, margin + offset, y, width - 2 * margin, 1);
-
-      // 오른쪽 가장자리 유지
-      copy(snapshot, width - margin, y, margin, 1, width - margin, y, margin, 1);
+      // 픽셀 RGBA 4개 복사
+      tempPixels[dstIndex]     = pixels[srcIndex];
+      tempPixels[dstIndex + 1] = pixels[srcIndex + 1];
+      tempPixels[dstIndex + 2] = pixels[srcIndex + 2];
+      tempPixels[dstIndex + 3] = pixels[srcIndex + 3];
     }
   }
+
+  // 바뀐 픽셀 배열을 원본에 덮어쓰기
+  pixels.set(tempPixels);
+  updatePixels();
 }
+
 
 function drawRedOverlay(scrollY, maxScroll) {
   if (scrollY > 15 * 531) {
@@ -169,11 +182,9 @@ function displayWarning(scrollY, maxScroll) {
 }
 
 function showRestMessage() {
-
   if (!restMessageStartTime) {
     restMessageStartTime = millis();
   }
-
   fill(0);
   rect(0, 0, width, height);
   fill(255);
@@ -184,25 +195,13 @@ function showRestMessage() {
   if (millis() - restMessageStartTime > 3000) {
     showEnding = true;
   }
-
 }
-
-// -----------------------
-// 기존 콘텐츠 출력
-// -----------------------
 
 function generatePosts(count) {
   let englishNames = [
-  "Ethan Carter",
-  "Olivia Bennett",
-  "Liam Thompson",
-  "Ava Morgan",
-  "Noah Brooks",
-  "Chloe Anderson",
-  "Mason Reed",
-  "Lily Parker",
-  "James Sullivan",
-  "Sophia Hayes"
+    "Ethan Carter", "Olivia Bennett", "Liam Thompson", "Ava Morgan",
+    "Noah Brooks", "Chloe Anderson", "Mason Reed", "Lily Parker",
+    "James Sullivan", "Sophia Hayes"
   ];
   for (let i = 0; i < count; i++) {
     posts.push({
@@ -324,19 +323,12 @@ function drawSaveIcon(x, y) {
   pop();
 }
 
-// -----------------------
-// 버튼 + 입력 처리
-// -----------------------
-
 function drawStopButton() {
   push();
-  let stopButtonAlpha = map(scrollY, 23 * 531, 40 * 531, 0, 255); // 투명도 조절
-
-  let stopButtonColor = color(255, 0, 0, stopButtonAlpha);  
-  fill(stopButtonColor);
+  let stopButtonAlpha = map(scrollY, 23 * 531, 40 * 531, 0, 255);
+  fill(255, 0, 0, stopButtonAlpha);
   noStroke();
   rect(width / 4, height - 60, width / 2, 40, 10);
-
   fill(255, stopButtonAlpha);
   textAlign(CENTER, CENTER);
   textSize(16);
@@ -355,7 +347,6 @@ function mousePressed() {
       }
     }
   }
-
   if (scrollY > 23 * 531 &&
       mouseX > width / 4 && mouseX < width * 3 / 4 &&
       mouseY > height - 60 && mouseY < height - 20) {
