@@ -70,10 +70,11 @@ function draw() {
   for (let i = 0; i < posts.length; i++) {
     drawPost(i, i * 531);
   }
-  pop(); // blur
+  pop(); // blur pop
   drawRedOverlay(scrollY, maxScroll);
-  pop(); // shake
+  pop(); // shake pop
 
+  
    applyWaveDistortionEffect(scrollY, maxScroll);
 
   displayUsageTime(scrollY, maxScroll);
@@ -94,16 +95,24 @@ function draw() {
 // -----------------------
 
 function applyShakeEffect(scrollY, maxScroll) {
-  let shakeAmt = map(scrollY, 15 * 531, maxScroll, 0, 15);
-  push();
-  translate(random(-shakeAmt, shakeAmt), random(-shakeAmt, shakeAmt));
+  if (scrollY > 15 * 531) {
+    let shakeAmt = map(scrollY, 15 * 531, maxScroll, 0, 15);
+    push();
+    translate(random(-shakeAmt, shakeAmt), random(-shakeAmt, shakeAmt));
+  } else {
+    push(); // 그냥 좌표계 유지용
+  }
 }
 
 function applyBlurEffect(scrollY, maxScroll) {
-  let blurAmt = map(scrollY, 15 * 531, maxScroll, 0, 12);
-  blurAmt = constrain(blurAmt, 0, 15);
-  push();
-  filter(BLUR, blurAmt);
+  if (scrollY > 15 * 531) {
+    let blurAmt = map(scrollY, 15 * 531, maxScroll, 0, 12);
+    blurAmt = constrain(blurAmt, 0, 12);
+    push();
+    filter(BLUR, blurAmt);
+  } else {
+    push();
+  }
 }
 
 function applyWaveDistortionEffect(scrollY, maxScroll) {
