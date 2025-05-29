@@ -2,12 +2,13 @@ let posts = [];
 let scrollY = 0;
 let heartClicked = [];
 let numPosts = 40;
-let showStartScreen = true;
+let showStartScreen = false;
 let startScreenStartTime;
 let startTime;
 let scrollStopped = false;
 let showEnding = false;
-let restMessageStartTime; 
+let restMessageStartTime;
+let showTitle = true;
 
 function setup() {
   createCanvas(400, windowHeight);
@@ -20,15 +21,34 @@ function setup() {
 
 function draw() {
   
-  if (showStartScreen) {
+  if(showTitle) {
     background(0);
     fill(255);
+    textSize(40);
+    textAlign(CENTER, CENTER);
+    text("주제 : 무한스크롤에\n 현혹되지 말자", width / 2, height / 2);
+    
+    fill(150);
+    textSize(20);
+    text("제작진", width / 2, height / 2 + 60);
+    textSize(18);
+    text("김찬 · 박서연 · 박준영", width / 2, height / 2 + 80);
+    
+    if (millis() - showTitle > 3000) {
+      showTitle = false;
+      showStartScreen = true;
+    }
+    return;
+  }
+  
+  if (showStartScreen) {
+    background(0);
+    fill(-150 + millis()/15);
     textSize(20);
     textAlign(CENTER, CENTER);
     text("계속 움직이세요. 멈추지 마세요.", width / 2, height / 2);
 
-    // 3초가 지나면 showStartScreen을 false로 전환
-    if (millis() - startScreenStartTime > 3000) {
+    if (millis() - startScreenStartTime > 7000) {
       showStartScreen = false;
     }
     return; 
