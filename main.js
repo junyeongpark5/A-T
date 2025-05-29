@@ -81,6 +81,7 @@ function draw() {
 
   if (scrollY > 23 * 531 && !scrollStopped) {
     drawStopButton();
+    scrollY -= 10;
   }
 
   if (scrollStopped) {
@@ -93,13 +94,13 @@ function draw() {
 // -----------------------
 
 function applyShakeEffect(scrollY, maxScroll) {
-  let shakeAmt = map(scrollY, 0, maxScroll, 0, 15);
+  let shakeAmt = map(scrollY, 15 * 531, maxScroll, 0, 15);
   push();
   translate(random(-shakeAmt, shakeAmt), random(-shakeAmt, shakeAmt));
 }
 
 function applyBlurEffect(scrollY, maxScroll) {
-  let blurAmt = map(scrollY, 0, maxScroll, 0, 12);
+  let blurAmt = map(scrollY, 15 * 531, maxScroll, 0, 12);
   blurAmt = constrain(blurAmt, 0, 15);
   push();
   filter(BLUR, blurAmt);
@@ -132,8 +133,8 @@ function applyWaveDistortionEffect(scrollY, maxScroll) {
 }
 
 function drawRedOverlay(scrollY, maxScroll) {
-  if (scrollY > 23 * 531) {
-    let redOverlayAlpha = map(scrollY, 23 * 531, maxScroll, 0, 80);
+  if (scrollY > 15 * 531) {
+    let redOverlayAlpha = map(scrollY, 15 * 531, maxScroll, 0, 80);
     fill(255, 0, 0, redOverlayAlpha);
     rect(0, 0, width, height);
   }
