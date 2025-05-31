@@ -10,7 +10,13 @@ let showEnding = false;
 let restMessageStartTime;
 let showTitle = true;
 let distortionBuffer;
+let images = [];
 
+function preload() {
+  for (let i = 1; i <= 4; i++) {
+    images.push(loadImage(`./res/images/Group${i}.png`));
+  }
+}
 
 function setup() {
   createCanvas(400, windowHeight);
@@ -207,6 +213,7 @@ function generatePosts(count) {
     posts.push({
       username: random(englishNames),
       caption: "파리의 하루 🌇 #" + (i + 1),
+      image: random(images)
     });
     heartClicked.push(false);
   }
@@ -214,7 +221,7 @@ function generatePosts(count) {
 
 function drawPost(index, yOffset) {
   drawHeader(posts[index].username, yOffset);
-  drawImagePlaceholder(yOffset + 50);
+  drawImagePlaceholder(posts[index].image, yOffset + 50);
   drawBottomUI(index, yOffset + 425);
 }
 
@@ -229,13 +236,11 @@ function drawHeader(username, y) {
   text(username, 50, y + 25);
 }
 
-function drawImagePlaceholder(y) {
+function drawImagePlaceholder(img, y) {
   fill(255);
   rect(0, y, 400, 375);
-  fill(0);
-  textAlign(CENTER, CENTER);
-  textSize(18);
-  text("image", 200, y + 187.5);
+  imageMode(CENTER);
+  image(img, width / 2, y + 187.5, 400, 375);  // 이미지 중앙 배치
 }
 
 function drawBottomUI(index, y) {
