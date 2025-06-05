@@ -22,7 +22,7 @@ let isPopupActive = false;
 
 function preload() {
   for (let i = 1; i <= 10; i++) {
-    images.push(loadImage(`./res/images/Group${i}.png`));
+    images.push(loadImage(`./res/images/Group${i}.jpg`));
   }
 }
 
