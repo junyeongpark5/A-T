@@ -289,7 +289,10 @@ function drawBottomUI(index, y) {
   textAlign(LEFT);
   textSize(14);
   text("???님 외 여러 명이 좋아합니다", 20, y + 55);
-  text(posts[index].username + ": " + posts[index].caption, 20, y + 95);
+  textStyle(BOLD);
+  text(posts[index].username, 20, y + 76);
+  textStyle(NORMAL);
+  text(" " + posts[index].caption, 30 + textWidth(posts[index].username), y + 95);
 }
 
 function drawIcons(index, y) {
@@ -406,7 +409,7 @@ function mouseWheel(event) {
 
 function drawInterruptPopup() {
   background(0, 200);
-  fill(255);
+  fill(255,200);
   rect(width / 4, height / 2 - 60, width / 2, 120, 10);
   fill(0);
   textAlign(CENTER, CENTER);
