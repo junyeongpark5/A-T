@@ -259,6 +259,8 @@ function drawPost(index, yOffset) {
   drawHeader(posts[index].username, yOffset);
   drawImagePlaceholder(posts[index].image, yOffset + 50);
   drawBottomUI(index, yOffset + 425);
+
+  
 }
 
 function drawHeader(username, y) {
@@ -281,13 +283,13 @@ function drawImagePlaceholder(img, y) {
 
 function drawBottomUI(index, y) {
   fill(255);
-  rect(0, y, 400, 106);
+  rect(0, y, 400, 150);
   drawIcons(index, y);
   fill(0);
   textAlign(LEFT);
   textSize(14);
-  text("???님 외 여러 명이 좋아합니다", 20, y + 65);
-  text(posts[index].username + ": " + posts[index].caption, 20, y + 85);
+  text("???님 외 여러 명이 좋아합니다", 20, y + 55);
+  text(posts[index].username + ": " + posts[index].caption, 20, y + 95);
 }
 
 function drawIcons(index, y) {
