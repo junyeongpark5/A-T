@@ -11,9 +11,17 @@ let restMessageStartTime;
 let showTitle = true;
 let distortionBuffer;
 let images = [];
+let popupZones = [24, 30, 36]; // 포스트 인덱스 기준
+let popupMessages = [
+  { message: "지금 왜 보고 있나요?", key: "A" },
+  { message: "정말 중요한가요?", key: "D" },
+  { message: "무언가 놓치고 있진 않나요?", key: "K" },
+];
+let currentPopupIndex = 0;
+let isPopupActive = false;
 
 function preload() {
-  for (let i = 1; i <= 4; i++) {
+  for (let i = 1; i <= 10; i++) {
     images.push(loadImage(`./res/images/Group${i}.png`));
   }
 }
@@ -59,7 +67,20 @@ function draw() {
 
     if (millis() - startScreenStartTime > 7000) {
       showStartScreen = false;
+      
     }
+    return;
+  }
+
+  if (!isPopupActive && currentPopupIndex < popupZones.length) {
+    let triggerY = popupZones[currentPopupIndex] * 531;
+    if (scrollY > triggerY) {
+      isPopupActive = true;
+    }
+  }
+
+  if (isPopupActive) {
+    drawInterruptPopup();
     return;
   }
 
@@ -209,15 +230,30 @@ function generatePosts(count) {
     "Noah Brooks", "Chloe Anderson", "Mason Reed", "Lily Parker",
     "James Sullivan", "Sophia Hayes"
   ];
+
+  let captions = [
+    "대한민국, 망한다는 말이 현실일까? 🚨\n지금 우리가 서 있는 이 길, 전문가들은 붕괴 직전이라 경고한다.\n이미 시작된 변화, 당신은 알고 있었나요?",
+    "속았다…대기업의 민낯\n겉으론 미소, 뒤에선 조작과 착취.\n그들은 언제부터 이렇게 완벽하게 속여왔을까?",
+    "당신의 정보, 이미 팔렸습니다 🔓\n가입할 때 체크한 그 동의서 한 장이\n당신의 인생을 열어버렸습니다.",
+    "평범한 아파트, 지하실엔 지옥이 있었다\n\"그 집이 이상했어요\"\n이웃들이 몰랐던 충격적인 진실",
+    "그가 웃고 있었다…살인의 순간에도\n도무지 이해할 수 없는 미소.\n살인범이 남긴 단 한 마디는, 모두를 얼어붙게 만들었다.",
+    "그녀는 진짜 사람이 아니었다\n팔로워 100만, 그런데… 실존하지 않는 사람?\nAI 아이돌의 정체가 밝혀졌다.",
+    "기억을 지우는 약💊 , 진짜 존재합니다\n고통도, 실수도 사라진다.\n하지만… 나도 사라질지도 몰라요.",
+    "인간은 필요 없다\nAI가 직접 선언했다.\n이젠 우리 없이도 가능하다고.",
+    "당신의 얼굴👁, 복제당했습니다\n딥페이크? 아니요, 이제는 클론입니다.\n누군가 이미 ‘당신’을 쓰고 있어요.",
+    "결혼식 전날, 그는 사라졌다\n사랑이든 아니든, 진실은 끝까지 가야 보인다.\n누군가의 실화입니다."
+  ];
+
   for (let i = 0; i < count; i++) {
     posts.push({
       username: random(englishNames),
-      caption: "파리의 하루 🌇 #" + (i + 1),
+      caption: random(captions),
       image: random(images)
     });
     heartClicked.push(false);
   }
 }
+
 
 function drawPost(index, yOffset) {
   drawHeader(posts[index].username, yOffset);
@@ -360,9 +396,31 @@ function mousePressed() {
 }
 
 function mouseWheel(event) {
-  if (!scrollStopped) {
+  if (!scrollStopped && !isPopupActive) {
     scrollY += event.delta;
     scrollY = constrain(scrollY, 0, numPosts * 531 - height);
+  }
+}
+
+function drawInterruptPopup() {
+  background(0, 200);
+  fill(255);
+  rect(width / 4, height / 2 - 60, width / 2, 120, 10);
+  fill(0);
+  textAlign(CENTER, CENTER);
+  textSize(16);
+
+  let popup = popupMessages[currentPopupIndex];
+  text(`${popup.message}\n계속하려면 '${popup.key}' 키를 누르세요`, width / 2, height / 2);
+}
+
+function keyPressed() {
+  if (isPopupActive) {
+    let expectedKey = popupMessages[currentPopupIndex].key.toLowerCase();
+    if (key.toLowerCase() === expectedKey) {
+      isPopupActive = false;
+      currentPopupIndex++;
+    }
   }
 }
 
@@ -371,12 +429,12 @@ function drawEndingCredits() {
   fill(255);
   textAlign(CENTER, CENTER);
   textSize(22);
-  text("✨ 제작진 ✨", width / 2, height / 2 - 60);
+  text(" 제작진 ", width / 2, height / 2 - 60);
   textSize(18);
   text("김찬 · 박서연 · 박준영", width / 2, height / 2 - 20);
   textSize(16);
   text("AI 사용 비율: 약 80%", width / 2, height / 2 + 20);
   text("소감 : ~~~~ ", width / 2, height / 2 + 45);
   textSize(14);
-  text("감사합니다 🙏", width / 2, height / 2 + 90);
+  text("감사합니다", width / 2, height / 2 + 90);
 }
