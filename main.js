@@ -19,6 +19,11 @@ let popupMessages = [
 ];
 let currentPopupIndex = 0;
 let isPopupActive = false;
+let speechRec;
+let allowStopOnce = true;
+let voiceMessage = "";
+let stopByVoice = false; // "그만"으로 멈춤 감지
+
 
 function preload() {
   for (let i = 1; i <= 10; i++) {
@@ -34,6 +39,24 @@ function setup() {
   startTime = millis();
   startScreenStartTime = millis();
   distortionBuffer = createGraphics(width, height);
+
+  speechRec = new p5.SpeechRec('ko-KR', gotSpeech);
+  speechRec.start(true, false); // 연속 듣기, 중복 없음
+}
+
+function gotSpeech() {
+  if (speechRec.resultValue) {
+    let said = speechRec.resultString.trim();
+
+    if (said === "멈춰") {
+      voiceMessage = "더는 멈출 수 없습니다.";
+    } else if (said === "그만" && allowStopOnce) {
+      voiceMessage = "정적…";
+      allowStopOnce = false;
+      stopByVoice = true;     // 스크롤 중단
+      scrollStopped = true;   // 기존 로직과 연결
+    }
+  }
 }
 
 function draw() {
@@ -42,13 +65,7 @@ function draw() {
     fill(255);
     textSize(40);
     textAlign(CENTER, CENTER);
-    text("주제 : 무한스크롤에\n 현혹되지 말자", width / 2, height / 2);
-
-    fill(150);
-    textSize(20);
-    text("제작진", width / 2, height / 2 + 60);
-    textSize(18);
-    text("김찬 · 박서연 · 박준영", width / 2, height / 2 + 80);
+    text("무한스크롤에\n 현혹되지 말자", width / 2, height / 2);
 
     if (millis() - startScreenStartTime > 3000) {
       showTitle = false;
@@ -123,6 +140,14 @@ function draw() {
   if (scrollStopped) {
     showRestMessage();
   }
+
+  if (voiceMessage !== "") {
+    fill(255, 0, 0);
+    textAlign(CENTER, CENTER);
+    textSize(18);
+    text(voiceMessage, width / 2, height - 80);
+  }
+  
 }
 
 function applyShakeEffect(scrollY, maxScroll) {
@@ -369,6 +394,8 @@ function drawSaveIcon(x, y) {
   pop();
 }
 
+let stopButtonClickCount = 0; // 추가: 버튼 클릭 횟수 저장
+
 function drawStopButton() {
   push();
   let stopButtonAlpha = map(scrollY, 23 * 531, 40 * 531, 0, 255);
@@ -393,12 +420,17 @@ function mousePressed() {
       }
     }
   }
+
   if (scrollY > 23 * 531 &&
       mouseX > width / 4 && mouseX < width * 3 / 4 &&
       mouseY > height - 60 && mouseY < height - 20) {
-    scrollStopped = true;
+    stopButtonClickCount++;
+    if (stopButtonClickCount >= 3) {
+      scrollStopped = true;
+    }
   }
 }
+
 
 function mouseWheel(event) {
   if (!scrollStopped && !isPopupActive) {
@@ -429,17 +461,118 @@ function keyPressed() {
   }
 }
 
+let creditYOffset = 600;
+let scrollSpeed = 1.2;
+let creditsFinished = false;
+
 function drawEndingCredits() {
   background(0);
   fill(255);
   textAlign(CENTER, CENTER);
+
+  let y = creditYOffset;
+
+  textSize(26);
+  text("🎬 제작진", width / 2, y);
+  y += 40;
+
+  textSize(20);
+  text("김찬 · 박서연 · 박준영", width / 2, y);
+  y += 60;
+
   textSize(22);
-  text(" 제작진 ", width / 2, height / 2 - 60);
-  textSize(18);
-  text("김찬 · 박서연 · 박준영", width / 2, height / 2 - 20);
+  text("🧠 AI 사용 비율: 약 80%", width / 2, y);
+  y += 50;
+
+  textSize(24);
+  text("🗣️ 소감", width / 2, y);
+  y += 35;
+
   textSize(16);
-  text("AI 사용 비율: 약 80%", width / 2, height / 2 + 20);
-  text("소감 : ~~~~ ", width / 2, height / 2 + 45);
-  textSize(14);
-  text("감사합니다", width / 2, height / 2 + 90);
+  text("박준영:", width / 2, y);
+  y += 25;
+  text("이번 프로젝트에서는 무한 스크롤의", width / 2, y);
+  y += 20;
+  text("중독성과 피로감을 주제로 인터랙티브", width / 2, y);
+  y += 20;
+  text("콘텐츠를 p5.js로 제작했습니다.", width / 2, y);
+  y += 20;
+  text("스크롤 조작에 따른 화면 왜곡과", width / 2, y);
+  y += 20;
+  text("저해상도 필터 효과, 그리고 엔딩 크레딧처럼", width / 2, y);
+  y += 20;
+  text("글자가 올라가는 애니메이션을 구현하면서", width / 2, y);
+  y += 20;
+  text("p5.js의 다양한 함수와 기능들을 익힐 수 있었습니다.", width / 2, y);
+  y += 20;
+  text("map(), constrain(), random() 같은 내장 함수와", width / 2, y);
+  y += 20;
+  text("조건문, 반복문을 활용해 시각 효과와 상호작용을", width / 2, y);
+  y += 20;
+  text("자연스럽게 연결하는 과정이 특히 흥미로웠습니다.", width / 2, y);
+  y += 20;
+  text("코딩뿐 아니라 사용자 경험과 스토리텔링을 고려해", width / 2, y);
+  y += 20;
+  text("콘텐츠를 완성하는 경험이 매우 뜻깊었습니다.", width / 2, y);
+  y += 40;
+
+  text("박서연:", width / 2, y);
+  y += 25;
+  text("초반에 팀 주제가 다소 추상적이다 보니", width / 2, y);
+  y += 20;
+  text("자칫하면 메시지가 명확하게 전달되지 않을 수", width / 2, y);
+  y += 20;
+  text("있겠다는 우려가 있었습니다.", width / 2, y);
+  y += 20;
+  text("‘어떻게 하면 사용자가 주제를", width / 2, y);
+  y += 20;
+  text("직관적으로 파악할 수 있을까?’라는 고민을 해결하기 위해", width / 2, y);
+  y += 20;
+  text("SNS 프레임을 배경으로 설정하고", width / 2, y);
+  y += 20;
+  text("화면 흔들림, 색상 변화 등의 인터랙션을 통해", width / 2, y);
+  y += 20;
+  text("문제점이 시각적으로 뚜렷하게 나타나도록 구현했습니다.", width / 2, y);
+  y += 20;
+  text("기획, 프로그래밍, 디자인을 함께 고민하면서", width / 2, y);
+  y += 20;
+  text("의미 있는 결과물을 만들어 낸 좋은 경험이었습니다.", width / 2, y);
+  y += 20;
+  text("앞으로의 프로젝트에서도 여러 분야를 조화롭게 결합해", width / 2, y);
+  y += 20;
+  text("전달력 있는 콘텐츠를 만들어 보고 싶습니다.", width / 2, y);
+  y += 50;
+
+  textSize(24);
+  text("📜 사용한 기술", width / 2, y);
+  y += 35;
+
+  textSize(16);
+  text("✅ JavaScript 문법 요소", width / 2, y);
+  y += 22;
+  text("• 배열, 객체, 조건문(if), 반복문(for)", width / 2, y);
+  y += 20;
+  text("• map(), constrain(), random() 함수", width / 2, y);
+  y += 20;
+  text("• 사용자 정의 함수, mousePressed 등 이벤트 함수", width / 2, y);
+  y += 30;
+
+  text("🎨 p5.js 기능 활용", width / 2, y);
+  y += 22;
+  text("• createCanvas(), background(), text()", width / 2, y);
+  y += 20;
+  text("• translate(), push(), pop()을 활용한 화면 왜곡", width / 2, y);
+  y += 20;
+  text("• loadPixels(), updatePixels()을 이용한 저해상도 효과", width / 2, y);
+  y += 40;
+
+  textSize(20);
+  text("🙏 감사합니다", width / 2, y);
+
+  if (!creditsFinished) {
+    creditYOffset -= scrollSpeed;
+    if (y < 0) {
+      creditsFinished = true;
+    }
+  }
 }
