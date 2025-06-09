@@ -63,9 +63,9 @@ function draw() {
   if (showTitle) {
     background(0);
     fill(255);
-    textSize(40);
+    textSize(38);
     textAlign(CENTER, CENTER);
-    text("무한스크롤에\n 현혹되지 말자", width / 2, height / 2);
+    text("당신의 시간은\n 어디로 흘러가고 있나요?", width / 2, height / 2);
 
     if (millis() - startScreenStartTime > 3000) {
       showTitle = false;
@@ -481,12 +481,68 @@ function drawEndingCredits() {
   y += 60;
 
   textSize(22);
-  text("🧠 AI 사용 비율: 약 80%", width / 2, y);
+  text("🧠 AI 사용 비율: 약 75%", width / 2, y);
   y += 50;
 
   textSize(24);
   text("🗣️ 소감", width / 2, y);
   y += 35;
+
+  textSize(16);
+  text("김찬:", width / 2, y);
+  y += 25;
+  text("이번 팀 활동이 저에게는 처음 해보는 팀 활동이어서", width / 2, y);
+  y += 20;
+  text("어떤 역할을 해야 할지 막막한 채로 시작했습니다.", width / 2, y);
+  y += 20;
+  text("하지만 팀원들과 소통하면서 우리가 평소에 경험할 수 있는", width / 2, y);
+  y += 20;
+  text("'sns 중독'을 중심으로 주제를 정하고,", width / 2, y);
+  y += 20;
+  text("인공지능을 활용해 뼈대를 잡아가며 점차 진행했습니다.", width / 2, y);
+  y += 20;
+  text("마우스 인터렉션, 화면 변화, 프레임 등 각자 역할을 맡아", width / 2, y);
+  y += 20;
+  text("코드를 수정하고 피드백을 주고받으며", width / 2, y);
+  y += 20;
+  text("프로젝트가 완성되어 가는 모습을 보며", width / 2, y);
+  y += 20;
+  text("팀 활동의 장점을 알게 되었습니다.", width / 2, y);
+  y += 20;
+  text("이번 경험을 바탕으로 다음 팀 활동에서는", width / 2, y);
+  y += 20;
+  text("좀 더 적극적으로 참여해 팀에 도움이 되는", width / 2, y);
+  y += 20;
+  text("구성원이 되고 싶습니다.", width / 2, y);
+  y += 50;
+
+  textSize(16);
+  text("박서연:", width / 2, y);
+  y += 25;
+  text("초반에 팀 주제가 다소 추상적이다 보니", width / 2, y);
+  y += 20;
+  text("자칫하면 메시지가 명확하게 전달되지 않을 수", width / 2, y);
+  y += 20;
+  text("있겠다는 우려가 있었습니다.", width / 2, y);
+  y += 20;
+  text("‘어떻게 하면 사용자가 주제를", width / 2, y);
+  y += 20;
+  text("직관적으로 파악할 수 있을까?’라는 고민을 해결하기 위해", width / 2, y);
+  y += 20;
+  text("SNS 프레임을 배경으로 설정하고", width / 2, y);
+  y += 20;
+  text("화면 흔들림, 색상 변화 등의 인터랙션을 통해", width / 2, y);
+  y += 20;
+  text("문제점이 시각적으로 뚜렷하게 나타나도록 구현했습니다.", width / 2, y);
+  y += 20;
+  text("기획, 프로그래밍, 디자인을 함께 고민하면서", width / 2, y);
+  y += 20;
+  text("의미 있는 결과물을 만들어 낸 좋은 경험이었습니다.", width / 2, y);
+  y += 20;
+  text("앞으로의 프로젝트에서도 여러 분야를 조화롭게 결합해", width / 2, y);
+  y += 20;
+  text("전달력 있는 콘텐츠를 만들어 보고 싶습니다.", width / 2, y);
+  y += 50;
 
   textSize(16);
   text("박준영:", width / 2, y);
@@ -515,33 +571,6 @@ function drawEndingCredits() {
   y += 20;
   text("콘텐츠를 완성하는 경험이 매우 뜻깊었습니다.", width / 2, y);
   y += 40;
-
-  text("박서연:", width / 2, y);
-  y += 25;
-  text("초반에 팀 주제가 다소 추상적이다 보니", width / 2, y);
-  y += 20;
-  text("자칫하면 메시지가 명확하게 전달되지 않을 수", width / 2, y);
-  y += 20;
-  text("있겠다는 우려가 있었습니다.", width / 2, y);
-  y += 20;
-  text("‘어떻게 하면 사용자가 주제를", width / 2, y);
-  y += 20;
-  text("직관적으로 파악할 수 있을까?’라는 고민을 해결하기 위해", width / 2, y);
-  y += 20;
-  text("SNS 프레임을 배경으로 설정하고", width / 2, y);
-  y += 20;
-  text("화면 흔들림, 색상 변화 등의 인터랙션을 통해", width / 2, y);
-  y += 20;
-  text("문제점이 시각적으로 뚜렷하게 나타나도록 구현했습니다.", width / 2, y);
-  y += 20;
-  text("기획, 프로그래밍, 디자인을 함께 고민하면서", width / 2, y);
-  y += 20;
-  text("의미 있는 결과물을 만들어 낸 좋은 경험이었습니다.", width / 2, y);
-  y += 20;
-  text("앞으로의 프로젝트에서도 여러 분야를 조화롭게 결합해", width / 2, y);
-  y += 20;
-  text("전달력 있는 콘텐츠를 만들어 보고 싶습니다.", width / 2, y);
-  y += 50;
 
   textSize(24);
   text("📜 사용한 기술", width / 2, y);
